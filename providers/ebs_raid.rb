@@ -131,7 +131,11 @@ end
 def update_initramfs()
   execute "updating initramfs" do
     Chef::Log.debug("updating initramfs to ensure RAID config persists reboots")
-    command "update-initramfs -u"
+    if platform_family?("rhel")
+      command "dracut -f"
+    else
+      command "update-initramfs -u"
+    end
   end
 end
 
@@ -441,4 +445,3 @@ def aws_creds
   end
   h
 end
-
