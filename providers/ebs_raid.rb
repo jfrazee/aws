@@ -336,7 +336,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   # For each volume add information to the mount metadata
   (1..num_disks).each do |i|
     if node['aws']['virtualization'] == "hvm"
-      disk_dev_path = i > 1 ? disk_dev.next : disk_dev
+      disk_dev_path = i > 1 ? disk_dev.next! : disk_dev
     else
       disk_dev_path = "#{disk_dev}#{i}"
     end
