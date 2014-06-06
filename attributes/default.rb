@@ -20,3 +20,5 @@
 default['aws']['right_aws_version'] = "3.0.5"
 default['aws']['databag_name'] = nil
 default['aws']['databag_entry'] = nil
+default['aws']['virtualization'] =
+  system('dmesg | grep -q "Booting paravirtualized kernel on Xen HVM"') ? 'hvm' : 'paravirtual'
