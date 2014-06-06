@@ -337,12 +337,10 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   (1..num_disks).each do |i|
     disk_dev_path =
       if node['aws']['virtualization'] == "hvm"
-        i > 1 ? disk_dev.next! : disk_dev
+        i > 1 ? disk_dev_path.next : disk_dev
       else
         "#{disk_dev}#{i}"
       end
-
-    Chef::Log.info("disk_dev_path is #{disk_dev_path}")
 
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     creds = aws_creds() # cannot be invoked inside the block
