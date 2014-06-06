@@ -325,7 +325,7 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
 
   creating_from_snapshot = !(snapshots.nil? || snapshots.size == 0)
 
-  disk_dev = find_free_volume_device_prefix
+  disk_dev = disk_dev_path = find_free_volume_device_prefix
   Chef::Log.debug("vol device prefix is #{disk_dev}")
 
   raid_dev = find_free_md_device_name
@@ -334,9 +334,15 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
   devices = {}
 
   # For each volume add information to the mount metadata
-  disk_dev_path = node['aws']['virtualization'] == "hvm" ? disk_dev.dup : "#{disk_dev}1"
   (1..num_disks).each do |i|
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
+
+    disk_dev_path =
+      if node['aws']['virtualization'] == "hvm"
+        i > 1 ? disk_dev_path.next : disk_dev
+      else
+        "#{disk_dev}#{i}"
+      end
 
     creds = aws_creds() # cannot be invoked inside the block
     aws_ebs_volume disk_dev_path do
@@ -358,8 +364,6 @@ def create_raid_disks(mount_point, mount_point_owner, mount_point_group, mount_p
     end
 
     Chef::Log.info("attach dev: #{disk_dev_path}")
-
-    disk_dev_path.next!
   end
 
   ruby_block "sleeping_#{new_resource.name}" do
